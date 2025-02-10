@@ -1,80 +1,120 @@
 ## Contents and Quick Links
 
-- [Game Server Hosting (Multiplay)](#game-server-hosting-multiplay)
+- [Multiplayer Services SDK](#multiplayer-services-sdk)
+- [Deployment](#deployment)
+- [Multiplay Hosting (Game Server Hosting)](#multiplay-hosting-game-server-hosting)
 - [Matchmaker](#matchmaker)
 - [Vivox](#vivox)
 
 ## Add Unity Gaming Services (UGS)
 
-Megacity-Metro uses several services from UGS to facilitate connectivity between players. To use these services inside your project, you need a [Unity Account](https://docs.unity.com/ugs-overview/en/manual/creating-unity-ids) and [create an organization](https://support.unity.com/hc/en-us/articles/208592876-How-do-I-create-a-new-Organization-) within the Unity Dashboard.
+Megacity Metro uses several services from UGS to facilitate connectivity between players. To use these services inside your project, you need a [Unity Account](https://docs.unity.com/ugs-overview/en/manual/creating-unity-ids) and to [create an organization](https://support.unity.com/hc/en-us/articles/208592876-How-do-I-create-a-new-Organization-) within the Unity dashboard.
 
-You can still use Megacity-Metro without UGS, but for a better multiplayer experience, it is recommended to use the following services:
+While you can still adapt Megacity Metro to work without UGS, using these services and their related packages will provide an optimized multiplayer and developer experience as shown below.
 
-### Game Server Hosting (Multiplay)
+### Deployment
 
-**Game Server Hosting**, formerly known as Multiplay, is a robust and flexible infrastructure for hosting multiplayer games. It ensures a smooth operation of your game by delivering proven performance and scalability. With Game Server Hosting, you can launch your multiplayer titles with confidence, knowing that you have the support of a reliable global platform. The enables you to spend less time troubleshooting and more time building your game with the help of comprehensive documentation, samples, and software development kits (SDKs) designed for interoperability. To get started with Game Server Hosting, refer to the official [documentation](https://docs.unity.com/game-server-hosting/en/manual/guides/get-started).
+Using the [Deployment](https://docs.unity3d.com/Packages/com.unity.services.deployment@1.0/manual/index.html) package and the default configuration files for Multiplay Hosting and Matchmaker located in the `Settings/UGS` folder lets you deploy builds and configure services in a few clicks, without leaving the Editor!
 
-**Warning**: Game Server Hosting is a pay-as-you-go service with a free tier. You must sign up for UGS services with a credit card to start using Game Server Hosting. If you exceed the [free tier usage allowance](https://unity.com/solutions/gaming-services/pricing), you will be charged. See our [Billing FAQ](https://support.unity.com/hc/en-us/articles/6821475035412-Billing-FAQ) to learn more.
+Navigate to **Services** > **Deployment** to open its window:
+![Deployment window](./Images/deployment-window.png)
 
-To use Game Server Hosting in your project, you need to [Integrate the Game Server Hosting](https://docs.unity.com/game-server-hosting/manual/guides/get-started#Integrat) service from the [Unity Cloud](https://cloud.unity.com/home).
+We will make use of this in the following sections.
 
-**Note**: You must be an Owner or Manager of your organization to enable Game Server Hosting.
+### Multiplayer Services SDK
 
-After you integrate Game Server Hosting, you must create a [build](https://docs.unity.com/game-server-hosting/manual/guides/get-started#Create), a [build configuration](https://docs.unity.com/game-server-hosting/manual/guides/get-started#Create2), a [fleet](https://docs.unity.com/game-server-hosting/manual/guides/get-started#Create3), and a [test allocation](https://docs.unity.com/game-server-hosting/manual/guides/get-started#Create4).
+The [Multiplayer Services SDK](https://docs.unity3d.com/Packages/com.unity.services.multiplayer@1.0/manual/index.html) provides optimized service integrations, ongoing package updates, and less need for boilerplate. For dedicated game servers using Multiplay Hosting, the SDK also provides server lifecycle events, and built-in services for backfill and Server Query Protocol (SQP).
 
-**Tip**: Check out our YouTube video [How to set up Game Server Hosting](https://www.youtube.com/watch?v=oN2c9teXi7M).
+To use the SDK, navigate to **Edit > Project Settings > Service**. Choose your organization and project* then select **Link Unity Project to cloud project:**
 
-For Megacity-Metro, we use the following Game Server Hosting setting:
+![Project ID](./Images/setting-project-id.png)
 
-For **Build Configuration**: 
+\* If you do do not see a list of projects after selecting an organization, verify that your Unity account has either the Manager or Owner role in this organization.
 
-- **Query Type**: `SQP`
-- **Launch parameters**: `-ip $$ip$$ -port $$port$$ -queryport $$query_port$$ -logFile $$log_dir$$/$$timestamp$$-Engine.log`
+### Multiplay Hosting (Game Server Hosting)
 
-For **Fleet**: 
-- **Server Per Machine** : `1` 
+> **Prerequisite**: You must have [linked your Unity project](#multiplayer-services-sdk).
+
+#### Step 1: Create a build
+
+> **Note:** Your first deployment to Multiplay Hosting must include a Build type, unless you have already [created a build in Multiplay Hosting](https://docs.unity.com/ugs/en-us/manual/game-server-hosting/manual/guides/create-a-build).
+
+To trigger your first deployment to Multiplay Hosting:
+- Navigate to `Build Profiles` and set the platform to `Linux Server` (this is required for Multiplay Hosting).
+- Navigate to `Services > Deployment`.
+- Select all configurations where **Multiplay** is the `Service`, or using the following `Type` values:
+  - Build Configuration
+  - Fleet
+  - Build
+- Press `Deploy Selected`.
+- After the build and deployments are done, all three will show a successful green `Deployed` indicator and label:
+
+![Deployment window](./Images/deployment-multiplay-all.png)
+
+#### Step 2: Deploy updates to Build Configuration and Fleet
+
+Once a build exists in Multiplay Hosting, deployments can also be used to update service configurations by choosing only `Build Configuration` and/or `Fleet`:
+
+![Deployment window](./Images/deployment-multiplay-configurations.png)
+
+Next, learn [how to configure Matchmaker](#matchmaker) or about [custom Multiplayer Hosting setups](gsh.md).
 
 ### Matchmaker
 
-**Matchmaker** is a versatile tool that enables you to customize matches in your game. It offers fast and efficient matches, multi-region orchestration, and backfill options. With its flexible configuration, dynamic scalability, and robust rule engine, Matchmaker simplifies matchmaking while supporting complex game loops. For more information, consult the [Matchmaker Quick Start Guide](https://docs.unity.com/matchmaker/en/manual/matchmaker-quick-start).
+> **Prerequisite**: You must have [linked your Unity project](#multiplayer-services-sdk), and deployed both build and service configurations to Multiplay Hosting.
 
-To use Matchmaker in your project, you must **Enable** and **Integrate** the Matchmaker service from the [Unity Cloud](https://cloud.unity.com/home).
+**Matchmaker** is a versatile tool that enables you to customize matches in your game. It offers fast and efficient matches, multi-region orchestration, and backfill options. With its flexible configuration, dynamic scalability, and robust rule engine, Matchmaker simplifies matchmaking while supporting complex game loops. To learn more, [get started with Matchmaker](https://docs.unity.com/ugs/manual/matchmaker/manual/get-started).
 
-For Megacity-Metro, we use the following Matchmaker configuration:
+#### Deploy the Environment and Queue configurations
 
-Creating the [queue](https://docs.unity.com/matchmaker/en/manual/advanced-topics-queues-pools#Queues):
-- **Maximum players on a ticket**: 12
+For Megacity Metro, we use the following Matchmaker configuration:
 
-Creating a default [pool](https://docs.unity.com/matchmaker/en/manual/advanced-topics-queues-pools#Pools):
-- **Timeout**: 60 seconds
+- Queue:
+  - **Maximum players on a ticket**: 12
+- Pool:
+  - **Timeout**: 60 seconds
+- Rules:
+  > **Note:** These settings are focused on development and assume that your team will want to join one (1) server at any given time. The relaxation rule ensures adequate time between leaving and re-joining the same server to avoid backfill conflicts.
+  - **Backfill enabled**: True
+  - **Team name:** Arena Fighters
+  - **Team count**
+    - **Team count min**: 100
+    - **Team count max**: 100
+    - **Relaxation 1**: 
+      - **Range Control** : Replace min 
+      - **Ticket age tyep** : Oldest
+      - **Replacement value** : 1
+      - **At seconds** : 10
+  - **Player count min**: 1
+  - **Player count max**: 1
 
-For Matchmaker [rules](https://docs.unity.com/matchmaker/manual/matchmaking-rules-rules), we use the following configuration:
-- **Backfill enabled**: true 
-- **Team count min**: 1
-- **Team count max**: 1
-- **Player count min**: 200
-- **Player count max**: 200
-- **Relaxation 1**: 
-  - **Range Control** : Replace min 
-  - **Ticket age tyep** : Oldest
-  - **Replacement value** : 1
-  - **At seconds** : 10
+To deploy the default configurations provided for Megacity Metro:
+- Navigate to `Services > Deployment`.
+- Select the following configurations where **Matchmaker** is the `Service` and/or using the following `Type` values:
+  - Environment Config
+  - Queue Config
+- Press `Deploy Selected`.
+- Once done, both services will show a successful green `Deployed` indicator and label:
 
-After configuring the services on the dashboard website, navigate to **Edit > Project Settings > Service** and choose your organization and project ID.
+![Deployment window](./Images/deployment-matchmaker.png)
 
-![Project ID](../Readme/setting-project-id.png)
+Learn more about:
+- [Queues](https://docs.unity.com/ugs/en-us/manual/matchmaker/manual/advanced-topics-queues-pools#Queues)
+- [Pools](https://docs.unity.com/ugs/en-us/manual/matchmaker/manual/advanced-topics-queues-pools#Pools)
+- [Rules](https://docs.unity.com/ugs/en-us/manual/matchmaker/manual/matchmaking-rules-rules)
 
-Next, click on the play button to initiate the game. To access the Matchmaking services, navigate to the main menu and select **"Matchmake"** mode, followed by clicking the **"Find Match"** button.
+#### Test the game
 
-![Selecting Matchmaking](../Readme/selecting-matchmaking.png)
+Now that the build is deployed and configured in Multiplay Hosting and Matchmaker, click on the play button to start the game. To access the Matchmaking services, navigate to the main menu and select **"Matchmake"** mode, followed by clicking the **"Find Match"** button.
+
+![Selecting Matchmaking](./Images/selecting-matchmaking.png)
 
 Once the "Find Match" button is clicked, the Matchmaking services will initiate the connection process with the server. During this time, a circular loading indicator will be presented to signify that the system is in the process of establishing the connection. Once the connection is established, you will be able to start gameplay.
 
-![Selecting Matchmaking](../Readme/establishing-connection.png)
-
+![Selecting Matchmaking](./Images/establishing-connection.png)
 
 ### Vivox
 
-**Vivox** is a voice chat service that enables players to communicate with each other in-game. To use [Vivox](https://unity.com/products/vivox), you need to connect your project to Vivox from the Unity Editor and enable Vivox in the [Unity Cloud](https://cloud.unity.com/home).
+**Vivox** is a voice chat service that enables players to communicate with each other in-game. To use [Vivox](https://unity.com/products/vivox), you need to connect your project to Vivox from the Unity Editor and enable Vivox in [Unity Cloud](https://cloud.unity.com/home).
 
 For more information about Vivox, and how to use it you can read the [Vivox quickstart guide](https://docs.vivox.com/v5/general/unity/15_1_200000/en-us/Default.htm#Unity/vivox-unity-first-steps.htm).

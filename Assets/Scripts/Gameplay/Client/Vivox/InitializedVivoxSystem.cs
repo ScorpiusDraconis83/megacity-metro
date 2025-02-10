@@ -18,13 +18,17 @@ namespace Unity.MegacityMetro.Gameplay
     /// System that initializes the Vivox connection for the local player.
     /// </summary>
     [BurstCompile]
-    [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation | WorldSystemFilterFlags.ThinClientSimulation)]
+    [WorldSystemFilter(WorldSystemFilterFlags.ClientSimulation)]
     public partial struct InitializedVivoxSystem : ISystem
     {
         private EntityQuery m_PlayerQuery;
 
         public void OnCreate(ref SystemState state)
         {
+#if UNITY_SERVER
+            state.Enabled = false;
+            return;
+#endif
             state.RequireForUpdate<NetworkStreamInGame>();
             m_PlayerQuery = state.GetEntityQuery(ComponentType.ReadOnly<GhostOwnerIsLocal>(),
                 ComponentType.Exclude<VivoxConnectionStatus>());
@@ -33,7 +37,10 @@ namespace Unity.MegacityMetro.Gameplay
 
         public void OnUpdate(ref SystemState state)
         {
-            if (PlayerInfoController.Instance == null || VivoxManager.Instance == null)
+            if (PlayerInfoController.Instance == null || 
+                PlayerInfoController.Instance.IsSinglePlayer || 
+                VivoxManager.Instance == null || 
+                VivoxManager.Instance.Service == null)
                 return;
 
             var cmdBuffer = new EntityCommandBuffer(Allocator.Temp);

@@ -10,11 +10,11 @@ namespace Unity.MegacityMetro.UI
     public class UIControlSettings : UISettingsTab
     {
         public static UIControlSettings Instance { get; private set; }
-        
+
         public override string TabName => "controls-settings";
 
-        private SliderInt m_AimSensitivitySlider;
-        private SliderInt m_MouseSensitivitySlider;
+        private CustomSliderInt m_AimSensitivitySlider;
+        private CustomSliderInt m_MouseSensitivitySlider;
         private CustomToggle m_InverseLookHorizontalToggle;
         private CustomToggle m_InverseLookVerticalToggle;
 
@@ -29,6 +29,8 @@ namespace Unity.MegacityMetro.UI
             if (Instance == null)
             {
                 Instance = this;
+                // this is used the first time to sync the cached data in the Control Settings
+                ShouldUpdate = true;
             }
             else
             {
@@ -46,8 +48,8 @@ namespace Unity.MegacityMetro.UI
             base.Initialize();
 
             var root = GetComponent<UIDocument>().rootVisualElement;
-            m_MouseSensitivitySlider = root.Q<SliderInt>("mouse-sensitivity");
-            m_AimSensitivitySlider = root.Q<SliderInt>("aim-sensitivity");
+            m_MouseSensitivitySlider = root.Q<CustomSliderInt>("mouse-sensitivity");
+            m_AimSensitivitySlider = root.Q<CustomSliderInt>("aim-sensitivity");
             m_InverseLookHorizontalToggle = root.Q<CustomToggle>("invert-look-horizontal");
             m_InverseLookVerticalToggle = root.Q<CustomToggle>("invert-look-vertical");
 
@@ -55,8 +57,10 @@ namespace Unity.MegacityMetro.UI
             m_AimSensitivitySlider.RegisterValueChangedCallback(OnAimSensitivityUpdated);
             m_InverseLookHorizontalToggle.RegisterValueChangedCallback(OnInverseLookHorizontalChanged);
             m_InverseLookVerticalToggle.RegisterValueChangedCallback(OnInverseLookVerticalChanged);
-            
+
             CheckSavedData();
+
+            m_AimSensitivitySlider.RegisterCallback<GeometryChangedEvent>(_ => m_AimSensitivitySlider.Focus());
         }
 
         private void OnInverseLookHorizontalChanged(ChangeEvent<bool> evt)
@@ -73,25 +77,25 @@ namespace Unity.MegacityMetro.UI
         {
             MouseSensitivity = evt.newValue / 100f;
         }
-        
+
         private void OnAimSensitivityUpdated(ChangeEvent<int> evt)
         {
-            AimAssistanceSensitivity = evt.newValue/ 100f;
+            AimAssistanceSensitivity = evt.newValue / 100f;
         }
 
         protected override void SaveCurrentState()
         {
             base.SaveCurrentState();
-            UpdateSliderCurrentState(m_MouseSensitivitySlider);
+            UpdateSliderIntCurrentState(m_MouseSensitivitySlider);
             UpdateCurrentToggleState(m_InverseLookHorizontalToggle);
             UpdateCurrentToggleState(m_InverseLookVerticalToggle);
-            
+
             // Tell system to update values
             ShouldUpdate = true;
-            
+
             SaveData();
         }
-        
+
         private void SaveData()
         {
             var controlSettingsData = new ControlSettingsData
@@ -101,16 +105,16 @@ namespace Unity.MegacityMetro.UI
                 InverseLookVertical = InverseLookVertical,
                 AimAssistanceSensitivity = AimAssistanceSensitivity
             };
-            
+
             PersistentDataManager.Instance.SaveControlSettings(controlSettingsData);
         }
-        
+
         private void CheckSavedData()
         {
             var controlSettingsData = PersistentDataManager.Instance.GetControlSettings();
-            
-            m_MouseSensitivitySlider.value = (int) (controlSettingsData.MouseSensitivity * 100f);
-            m_AimSensitivitySlider.value = (int) (controlSettingsData.AimAssistanceSensitivity * 100f);
+
+            m_MouseSensitivitySlider.value = (int)(controlSettingsData.MouseSensitivity * 100f);
+            m_AimSensitivitySlider.value = (int)(controlSettingsData.AimAssistanceSensitivity * 100f);
             m_InverseLookHorizontalToggle.value = controlSettingsData.InverseLookHorizontal;
             m_InverseLookVerticalToggle.value = controlSettingsData.InverseLookVertical;
         }
@@ -128,7 +132,7 @@ namespace Unity.MegacityMetro.UI
         public override void Reset()
         {
             base.Reset();
-            ResetSliderCurrentState(m_MouseSensitivitySlider);
+            ResetSliderIntCurrentState(m_MouseSensitivitySlider);
             ResetCurrentToggleState(m_InverseLookHorizontalToggle);
             ResetCurrentToggleState(m_InverseLookVerticalToggle);
         }

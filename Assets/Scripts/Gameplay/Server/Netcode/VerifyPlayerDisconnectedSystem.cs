@@ -2,7 +2,6 @@
 using Unity.Entities;
 using Unity.NetCode;
 using Unity.NetCode.Extensions;
-using Unity.Services.Samples.GameServerHosting;
 using static Unity.Entities.SystemAPI;
 
 namespace Unity.MegacityMetro.Gameplay
@@ -17,8 +16,6 @@ namespace Unity.MegacityMetro.Gameplay
         private EntityQuery m_ConnectedPlayers;
         public void OnCreate(ref SystemState state)
         {
-            var myEntity = state.EntityManager.CreateEntity();
-            state.EntityManager.AddBuffer<PlayerConnectedElement>(myEntity);
             m_ConnectedPlayers = state.GetEntityQuery(ComponentType.ReadOnly<NetworkStreamConnection>());
         }
 
@@ -31,10 +28,7 @@ namespace Unity.MegacityMetro.Gameplay
                 var player = playersConnected[i];
                 if (!state.EntityManager.Exists(player.Value))
                 {
-                    var uasID = player.UASId.ToString();
-                    GameHostingServerEvents.UserLeftServer?.Invoke(uasID);
-
-                    UnityEngine.Debug.Log($"Attention: Player {player.Name}({uasID}) has been disconnected from the game." +
+                    UnityEngine.Debug.Log($"Attention: Player {player.Name}({player.UASId}) has been disconnected from the game." +
                                           $"\nConnected Players: {m_ConnectedPlayers.CalculateEntityCount()}");
                     playersConnected.RemoveAt(i);
                 }

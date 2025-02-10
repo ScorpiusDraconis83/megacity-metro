@@ -16,9 +16,10 @@ namespace Unity.MegacityMetro.UI
         public VisualElement GameSettingsView { get; set; }
 
         public abstract string TabName { get; }
-        private Dictionary<SliderInt, int> m_CurrentSliderData = new();
+        private Dictionary<CustomSliderInt, int> m_CurrentSliderIntData = new();
+        private Dictionary<CustomSlider, float> m_CurrentSliderData = new();
         private Dictionary<CustomToggle, bool> m_CurrentToggleData = new();
-        private Dictionary<DropdownField, string> m_CurrentDropdownFieldData = new();
+        private Dictionary<CustomSelector, string> m_CurrentSelectorFieldData = new();
 
         public void Show()
         {
@@ -38,7 +39,7 @@ namespace Unity.MegacityMetro.UI
         {
             SaveCurrentState();
         }
-
+        
         protected virtual void SaveCurrentState()
         {
         }
@@ -52,12 +53,26 @@ namespace Unity.MegacityMetro.UI
         {
         }
 
-        protected void UpdateSliderCurrentState(SliderInt slider)
+        protected void UpdateSliderIntCurrentState(CustomSliderInt slider)
+        {
+            m_CurrentSliderIntData[slider] = slider.value;
+        }
+        
+        
+        protected void ResetSliderIntCurrentState(CustomSliderInt slider)
+        {
+            if (m_CurrentSliderIntData.TryGetValue(slider, out var value))
+            {
+                slider.value = value;
+            }
+        }
+        
+        protected void UpdateSliderCurrentState(CustomSlider slider)
         {
             m_CurrentSliderData[slider] = slider.value;
         }
-
-        protected void ResetSliderCurrentState(SliderInt slider)
+        
+        protected void ResetSliderCurrentState(CustomSlider slider)
         {
             if (m_CurrentSliderData.TryGetValue(slider, out var value))
             {
@@ -77,17 +92,17 @@ namespace Unity.MegacityMetro.UI
                 toggle.value = value;
             }
         }
-
-        protected void UpdateCurrentDropdownFieldState(DropdownField dropdownField)
+        
+        protected void UpdateCurrentSelectorFieldState(CustomSelector selectorField)
         {
-            m_CurrentDropdownFieldData[dropdownField] = dropdownField.value;
+            m_CurrentSelectorFieldData[selectorField] = selectorField.value;
         }
 
-        protected void ResetCurrentDropdownFieldState(DropdownField dropdownField)
+        protected void ResetCurrentSelectorFieldState(CustomSelector selectorField)
         {
-            if (m_CurrentDropdownFieldData.TryGetValue(dropdownField, out var value))
+            if (m_CurrentSelectorFieldData.TryGetValue(selectorField, out var value))
             {
-                dropdownField.value = value;
+                selectorField.value = value;
             }
         }
     }
